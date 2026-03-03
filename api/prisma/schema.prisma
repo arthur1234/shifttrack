@@ -1,0 +1,135 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  EMPLOYEE
+  BRANCH_MANAGER
+  ACCOUNTING
+  TOP_MANAGEMENT
+  ADMIN
+}
+
+enum EmployeeType {
+  REGULAR
+  FIELD_WORKER
+}
+
+enum ShiftStatus {
+  ACTIVE
+  CLOSED
+  CLOSED_MANUAL
+  FLAGGED_UNCLOSED
+}
+
+enum LocationType {
+  BRANCH
+  HOME
+  FIELD
+  UNKNOWN
+}
+
+model Employee {
+  id             String       @id @default(uuid())
+  phone          String       @unique
+  email          String?      @unique
+  passwordHash   String?
+  fullName       String
+  role           Role         @default(EMPLOYEE)
+  employeeType   EmployeeType @default(REGULAR)
+  homeBranchId   String?
+  homeBranch     Branch?      @relation(fields: [homeBranchId], references: [id])
+  isActive       Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  shifts         ShiftRecord[]
+  consentRecord  ConsentRecord?
+
+  @@map("employees")
+}
+
+model Branch {
+  id             String    @id @default(uuid())
+  name           String
+  address        String
+  city           String
+  latitude       Decimal   @db.Decimal(10, 8)
+  longitude      Decimal   @db.Decimal(11, 8)
+  geofenceRadius Int       @default(150)
+  isActive       Boolean   @default(true)
+  shortCode      String    @unique
+  maxShiftHours  Int       @default(10)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  employees      Employee[]
+  shifts         ShiftRecord[]
+
+  @@map("branches")
+}
+
+model ShiftRecord {
+  id               String       @id @default(uuid())
+  employeeId       String
+  employee         Employee     @relation(fields: [employeeId], references: [id])
+  startedAt        DateTime
+  endedAt          DateTime?
+  durationMinutes  Int?
+  status           ShiftStatus  @default(ACTIVE)
+
+  startLatitude    Decimal?     @db.Decimal(10, 8)
+  startLongitude   Decimal?     @db.Decimal(11, 8)
+  startLocationType LocationType?
+  startBranchId    String?
+  startGpsAccuracy Float?
+  startIpAddress   String?
+  startUserAgent   String?
+  startIsSuspicious Boolean     @default(false)
+
+  endLatitude      Decimal?     @db.Decimal(10, 8)
+  endLongitude     Decimal?     @db.Decimal(11, 8)
+  endLocationType  LocationType?
+  endBranchId      String?
+  endGpsAccuracy   Float?
+  endIpAddress     String?
+  endUserAgent     String?
+
+  isManualOverride Boolean      @default(false)
+  overriddenBy     String?
+  overrideReason   String?
+
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@map("shift_records")
+}
+
+model ConsentRecord {
+  id              String   @id @default(uuid())
+  employeeId      String   @unique
+  employee        Employee @relation(fields: [employeeId], references: [id])
+  consentVersion  String
+  consentedAt     DateTime @default(now())
+  ipAddress       String
+  deviceUserAgent String
+
+  @@map("consent_records")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  action     String
+  actorId    String
+  targetId   String
+  targetType String
+  before     Json?
+  after      Json?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+
+  @@map("audit_logs")
+}
