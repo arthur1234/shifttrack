@@ -1,52 +1,43 @@
 import {
   Injectable,
   UnauthorizedException,
-  NotFoundException,
-  BadRequestException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcryptjs';
-import * as twilio from 'twilio';
+import Twilio from 'twilio';
 
 @Injectable()
 export class AuthService {
-  private twilioClient: twilio.Twilio;
+  private twilioClient: Twilio.Twilio;
 
   constructor(
     private prisma: PrismaService,
     private jwt: JwtService,
     private config: ConfigService,
   ) {
-    this.twilioClient = twilio(
-      config.get('TWILIO_ACCOUNT_SID'),
-      config.get('TWILIO_AUTH_TOKEN'),
+    this.twilioClient = Twilio(
+      config.getOrThrow('TWILIO_ACCOUNT_SID'),
+      config.getOrThrow('TWILIO_AUTH_TOKEN'),
     );
   }
 
   async requestOtp(phone: string): Promise<{ message: string }> {
-    // Check employee exists
-    const employee = await this.prisma.employee.findUnique({
-      where: { phone },
-    });
+    const employee = await this.prisma.employee.findUnique({ where: { phone } });
 
     if (!employee || !employee.isActive) {
-      // Don't reveal if user exists - just say OTP sent
       return { message: 'OTP sent if account exists' };
     }
 
     await this.twilioClient.verify.v2
-      .services(this.config.get('TWILIO_VERIFY_SERVICE_SID'))
+      .services(this.config.getOrThrow('TWILIO_VERIFY_SERVICE_SID'))
       .verifications.create({ to: phone, channel: 'sms' });
 
     return { message: 'OTP sent' };
   }
 
-  async verifyOtp(
-    phone: string,
-    code: string,
-  ): Promise<{ accessToken: string; employee: any }> {
+  async verifyOtp(phone: string, code: string): Promise<{ accessToken: string; employee: any }> {
     const employee = await this.prisma.employee.findUnique({
       where: { phone },
       include: { homeBranch: { select: { name: true } } },
@@ -57,7 +48,7 @@ export class AuthService {
     }
 
     const result = await this.twilioClient.verify.v2
-      .services(this.config.get('TWILIO_VERIFY_SERVICE_SID'))
+      .services(this.config.getOrThrow('TWILIO_VERIFY_SERVICE_SID'))
       .verificationChecks.create({ to: phone, code });
 
     if (result.status !== 'approved') {
@@ -67,10 +58,8 @@ export class AuthService {
       });
     }
 
-    const accessToken = this.generateToken(employee);
-
     return {
-      accessToken,
+      accessToken: this.generateToken(employee),
       employee: {
         id: employee.id,
         fullName: employee.fullName,
@@ -81,10 +70,7 @@ export class AuthService {
     };
   }
 
-  async loginWithPassword(
-    email: string,
-    password: string,
-  ): Promise<{ accessToken: string; employee: any }> {
+  async loginWithPassword(email: string, password: string): Promise<{ accessToken: string; employee: any }> {
     const employee = await this.prisma.employee.findUnique({
       where: { email },
       include: { homeBranch: { select: { id: true, name: true } } },
@@ -95,14 +81,10 @@ export class AuthService {
     }
 
     const valid = await bcrypt.compare(password, employee.passwordHash);
-    if (!valid) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-
-    const accessToken = this.generateToken(employee);
+    if (!valid) throw new UnauthorizedException('Invalid credentials');
 
     return {
-      accessToken,
+      accessToken: this.generateToken(employee),
       employee: {
         id: employee.id,
         fullName: employee.fullName,

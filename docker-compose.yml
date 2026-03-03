@@ -44,9 +44,7 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    volumes:
-      - ./api:/app
-      - /app/node_modules
+    # No bind mounts in production; image contains compiled dist
 
   nginx:
     image: nginx:alpine
