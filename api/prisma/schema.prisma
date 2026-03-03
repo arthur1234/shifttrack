@@ -43,7 +43,7 @@ model Employee {
   role           Role         @default(EMPLOYEE)
   employeeType   EmployeeType @default(REGULAR)
   homeBranchId   String?
-  homeBranch     Branch?      @relation(fields: [homeBranchId], references: [id])
+  homeBranch     Branch?      @relation("HomeBranch", fields: [homeBranchId], references: [id])
   isActive       Boolean      @default(true)
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
@@ -54,20 +54,21 @@ model Employee {
 }
 
 model Branch {
-  id             String    @id @default(uuid())
+  id             String        @id @default(uuid())
   name           String
   address        String
   city           String
-  latitude       Decimal   @db.Decimal(10, 8)
-  longitude      Decimal   @db.Decimal(11, 8)
-  geofenceRadius Int       @default(150)
-  isActive       Boolean   @default(true)
-  shortCode      String    @unique
-  maxShiftHours  Int       @default(10)
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  employees      Employee[]
-  shifts         ShiftRecord[]
+  latitude       Decimal       @db.Decimal(10, 8)
+  longitude      Decimal       @db.Decimal(11, 8)
+  geofenceRadius Int           @default(150)
+  isActive       Boolean       @default(true)
+  shortCode      String        @unique
+  maxShiftHours  Int           @default(10)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  employees      Employee[]    @relation("HomeBranch")
+  shiftsStarted  ShiftRecord[] @relation("ShiftStartBranch")
+  shiftsEnded    ShiftRecord[] @relation("ShiftEndBranch")
 
   @@map("branches")
 }
@@ -85,6 +86,7 @@ model ShiftRecord {
   startLongitude   Decimal?     @db.Decimal(11, 8)
   startLocationType LocationType?
   startBranchId    String?
+  startBranch      Branch?      @relation("ShiftStartBranch", fields: [startBranchId], references: [id])
   startGpsAccuracy Float?
   startIpAddress   String?
   startUserAgent   String?
@@ -94,6 +96,7 @@ model ShiftRecord {
   endLongitude     Decimal?     @db.Decimal(11, 8)
   endLocationType  LocationType?
   endBranchId      String?
+  endBranch        Branch?      @relation("ShiftEndBranch", fields: [endBranchId], references: [id])
   endGpsAccuracy   Float?
   endIpAddress     String?
   endUserAgent     String?
