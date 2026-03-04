@@ -46,6 +46,8 @@ model Employee {
   homeBranchId   String?
   homeBranch     Branch?      @relation("HomeBranch", fields: [homeBranchId], references: [id])
   isActive       Boolean      @default(true)
+  position       String?      // job title: קופאי, טבח, שליח, מנהל משמרת etc
+  hireDate       DateTime?    // תאריך תחילת עבודה
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
   shifts         ShiftRecord[]
@@ -105,6 +107,10 @@ model ShiftRecord {
   isManualOverride Boolean      @default(false)
   overriddenBy     String?
   overrideReason   String?
+
+  breakMinutes     Int?         // הפסקה שנלקחה (דק')
+  employeeNote     String?      // הערת עובד
+  managerNote      String?      // הערת מנהל
 
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt

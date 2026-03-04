@@ -86,8 +86,10 @@ export default function EmployeeDetailPage() {
               <span>📞 <span dir="ltr">{employee.phone}</span></span>
               {employee.email && <span>✉️ {employee.email}</span>}
               <span>🏢 {employee.homeBranch?.name ?? '—'}</span>
-              <span>📋 {employee.role}</span>
-              <span>{employee.employeeType === 'FIELD_WORKER' ? '🚗 עובד שדה' : '👤 רגיל'}</span>
+              {employee.position && <span>💼 {employee.position}</span>}
+              <span>📋 {({'ADMIN':'מנהל כללי','BRANCH_MANAGER':'מנהל סניף','ACCOUNTING':'הנה"ח','EMPLOYEE':'עובד'} as Record<string,string>)[employee.role] ?? employee.role}</span>
+              <span>{employee.employeeType === 'FIELD_WORKER' ? '🚗 שדה' : '👤 רגיל'}</span>
+              {employee.hireDate && <span>📅 מ-{new Date(employee.hireDate).toLocaleDateString('he-IL')}</span>}
             </div>
           </div>
           <span className={`badge ${employee.isActive ? 'badge-green' : 'badge-gray'}`}>

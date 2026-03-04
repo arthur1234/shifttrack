@@ -1,7 +1,5 @@
-import { IsString, IsOptional, IsEnum, IsPhoneNumber, IsEmail } from 'class-validator';
-
-export enum Role { ADMIN = 'ADMIN', BRANCH_MANAGER = 'BRANCH_MANAGER', ACCOUNTING = 'ACCOUNTING', EMPLOYEE = 'EMPLOYEE' }
-export enum EmployeeType { REGULAR = 'REGULAR', HOURLY = 'HOURLY', PART_TIME = 'PART_TIME' }
+import { IsString, IsOptional, IsEmail, IsEnum, IsDateString, IsBoolean } from 'class-validator';
+import { Role, EmployeeType } from '@prisma/client';
 
 export class CreateEmployeeDto {
   @IsString()
@@ -29,4 +27,16 @@ export class CreateEmployeeDto {
   @IsOptional()
   @IsString()
   password?: string;
+
+  @IsOptional()
+  @IsString()
+  position?: string;    // תפקיד: קופאי, טבח, שליח, מנהל משמרת
+
+  @IsOptional()
+  @IsDateString()
+  hireDate?: string;    // תאריך תחילת עבודה
+
+  @IsOptional()
+  @IsBoolean()
+  isActive?: boolean;
 }

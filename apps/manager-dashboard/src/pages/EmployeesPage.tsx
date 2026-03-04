@@ -13,7 +13,7 @@ export default function EmployeesPage() {
   const [msg, setMsg] = useState('')
   const [importing, setImporting] = useState(false)
   const [editingEmp, setEditingEmp] = useState<any>(null)
-  const [editForm, setEditForm] = useState({ fullName: '', phone: '', email: '', role: '', homeBranchId: '', isActive: true })
+  const [editForm, setEditForm] = useState({ fullName: '', phone: '', email: '', role: '', homeBranchId: '', isActive: true, position: '', hireDate: '' })
 
   const load = async () => {
     try {
@@ -61,7 +61,7 @@ export default function EmployeesPage() {
 
   const openEdit = (emp: any) => {
     setEditingEmp(emp)
-    setEditForm({ fullName: emp.fullName, phone: emp.phone, email: emp.email || '', role: emp.role, homeBranchId: emp.homeBranch?.id || '', isActive: emp.isActive })
+    setEditForm({ fullName: emp.fullName, phone: emp.phone, email: emp.email || '', role: emp.role, homeBranchId: emp.homeBranch?.id || '', isActive: emp.isActive, position: emp.position || '', hireDate: emp.hireDate ? emp.hireDate.split('T')[0] : '' })
   }
 
   const handleEdit = async (e: React.FormEvent) => {
@@ -144,7 +144,7 @@ export default function EmployeesPage() {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
             <thead>
               <tr style={{ borderBottom: '1px solid #eee' }}>
-                {['שם', 'טלפון', 'תפקיד', 'סניף', 'סטטוס', ''].map(h => (
+                {['שם', 'טלפון', 'משרה', 'תפקיד', 'סניף', 'סטטוס', ''].map(h => (
                   <th key={h} style={{ padding: '8px 12px', textAlign: 'right', color: '#666', fontWeight: 600 }}>{h}</th>
                 ))}
               </tr>
@@ -159,6 +159,7 @@ export default function EmployeesPage() {
                     </button>
                   </td>
                   <td style={{ padding: '10px 12px', direction: 'ltr', color: '#555' }}>{emp.phone}</td>
+                  <td style={{ padding: '10px 12px', color: '#555', fontSize: 13 }}>{emp.position || '—'}</td>
                   <td style={{ padding: '10px 12px' }}>{roleLabel[emp.role] || emp.role}</td>
                   <td style={{ padding: '10px 12px', color: '#555' }}>{emp.homeBranch?.name ?? '—'}</td>
                   <td style={{ padding: '10px 12px' }}>
@@ -186,6 +187,8 @@ export default function EmployeesPage() {
                 { label: 'שם מלא', key: 'fullName', type: 'text' },
                 { label: 'טלפון', key: 'phone', type: 'tel', dir: 'ltr' },
                 { label: 'אימייל', key: 'email', type: 'email', dir: 'ltr' },
+                { label: 'תפקיד / משרה (קופאי, טבח, שליח...)', key: 'position', type: 'text' },
+                { label: 'תאריך תחילת עבודה', key: 'hireDate', type: 'date', dir: 'ltr' },
               ].map(f => (
                 <div key={f.key} style={{ marginBottom: 14 }}>
                   <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{f.label}</label>

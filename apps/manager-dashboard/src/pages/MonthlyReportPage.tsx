@@ -102,7 +102,10 @@ export default function MonthlyReportPage() {
                     <td style={{ padding: '9px 10px', fontWeight: 600 }}>{e.employee.fullName}</td>
                     <td style={{ padding: '9px 10px', direction: 'ltr', color: '#555' }}>{e.employee.phone}</td>
                     <td style={{ padding: '9px 10px', textAlign: 'center' }}>{e.shiftCount}</td>
-                    <td style={{ padding: '9px 10px', fontWeight: 700, color: '#1565c0' }}>{e.totalHours}ש'</td>
+                    <td style={{ padding: '9px 10px', fontWeight: 700, color: '#1565c0' }}>
+                      {e.totalHours}ש'
+                      {e.totalHours > 200 && <span title="מעל 200 שעות בחודש" style={{ marginRight: 4, fontSize: 12 }}>⚠️</span>}
+                    </td>
                     <td style={{ padding: '9px 10px', color: '#555' }}>{e.hoursByType.branch > 0 ? e.hoursByType.branch + 'ש\'' : '—'}</td>
                     <td style={{ padding: '9px 10px', color: '#555' }}>{e.hoursByType.home > 0 ? e.hoursByType.home + 'ש\'' : '—'}</td>
                     <td style={{ padding: '9px 10px', color: '#555' }}>{e.hoursByType.field > 0 ? e.hoursByType.field + 'ש\'' : '—'}</td>

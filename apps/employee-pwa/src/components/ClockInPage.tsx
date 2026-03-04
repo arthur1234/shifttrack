@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import api from '../services/api'
 
-interface Props { onLogout: () => void }
+interface Props { onLogout: () => void; onHistory: () => void }
 
 type LocationType = 'BRANCH' | 'HOME' | 'FIELD' | 'UNKNOWN'
 
@@ -19,7 +19,7 @@ const locationLabels: Record<LocationType, string> = {
   UNKNOWN: '❓ לא ידוע'
 }
 
-export default function ClockInPage({ onLogout }: Props) {
+export default function ClockInPage({ onLogout, onHistory }: Props) {
   const [activeShift, setActiveShift] = useState<Shift | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -100,6 +100,7 @@ export default function ClockInPage({ onLogout }: Props) {
         <span style={styles.logo}>🍕 ShiftTrack</span>
         <div style={{ display: 'flex', gap: 8 }}>
           {!isInstalled && <button style={styles.installBtn} onClick={() => setShowInstall(!showInstall)}>📲</button>}
+          <button style={styles.installBtn} onClick={onHistory}>📋</button>
           <button style={styles.logoutBtn} onClick={onLogout}>יציאה</button>
         </div>
       </div>
@@ -135,8 +136,14 @@ export default function ClockInPage({ onLogout }: Props) {
           </div>
         )}
 
-        {success && <div style={styles.success}>{success}</div>}
+          {success && <div style={styles.success}>{success}</div>}
         {error && <div style={styles.error}>{error}</div>}
+      </div>
+
+      {/* Bottom nav */}
+      <div style={styles.bottomNav}>
+        <button style={styles.navActive}>⏱ משמרת</button>
+        <button style={styles.navBtn} onClick={onHistory}>📋 היסטוריה</button>
       </div>
     </div>
   )
@@ -158,5 +165,8 @@ const styles: Record<string, React.CSSProperties> = {
   readyText: { fontSize: 22, fontWeight: 600, color: '#333', marginBottom: 24 },
   btn: { width: '100%', padding: '18px', borderRadius: 14, background: '#E31837', color: '#fff', border: 'none', fontSize: 18, fontWeight: 700, cursor: 'pointer', marginTop: 8 },
   success: { marginTop: 16, background: '#e8f5e9', color: '#2e7d32', padding: '12px 20px', borderRadius: 10, fontWeight: 600 },
-  error: { marginTop: 16, background: '#ffebee', color: '#c62828', padding: '12px 20px', borderRadius: 10 }
+  error: { marginTop: 16, background: '#ffebee', color: '#c62828', padding: '12px 20px', borderRadius: 10 },
+  bottomNav: { display: 'flex', borderTop: '1px solid #eee', background: '#fff' },
+  navActive: { flex: 1, padding: '14px', border: 'none', background: '#fff8f8', color: '#E31837', fontWeight: 700, fontSize: 14, cursor: 'pointer', borderTop: '3px solid #E31837' },
+  navBtn: { flex: 1, padding: '14px', border: 'none', background: '#fff', color: '#888', fontWeight: 600, fontSize: 14, cursor: 'pointer' },
 }
