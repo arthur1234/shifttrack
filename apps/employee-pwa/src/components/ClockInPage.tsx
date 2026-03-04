@@ -91,12 +91,29 @@ export default function ClockInPage({ onLogout }: Props) {
     } finally { setLoading(false) }
   }
 
+  const [showInstall, setShowInstall] = useState(false)
+  const isInstalled = window.matchMedia('(display-mode: standalone)').matches
+
   return (
     <div style={styles.page}>
       <div style={styles.header}>
         <span style={styles.logo}>🍕 ShiftTrack</span>
-        <button style={styles.logoutBtn} onClick={onLogout}>יציאה</button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          {!isInstalled && <button style={styles.installBtn} onClick={() => setShowInstall(!showInstall)}>📲</button>}
+          <button style={styles.logoutBtn} onClick={onLogout}>יציאה</button>
+        </div>
       </div>
+
+      {showInstall && (
+        <div style={styles.installBanner}>
+          <strong>📲 הוסף לדף הבית</strong>
+          <p style={{ marginTop: 6, fontSize: 13 }}>
+            <b>iPhone/Safari:</b> לחץ ▫️ "שתף" → "הוסף למסך הבית"<br />
+            <b>Android/Chrome:</b> לחץ ⋮ תפריט → "הוסף למסך הבית"
+          </p>
+          <button onClick={() => setShowInstall(false)} style={{ marginTop: 8, padding: '4px 12px', borderRadius: 6, border: 'none', background: '#E31837', color: '#fff', cursor: 'pointer', fontSize: 12 }}>סגור</button>
+        </div>
+      )}
 
       <div style={styles.content}>
         {activeShift ? (
@@ -126,6 +143,8 @@ export default function ClockInPage({ onLogout }: Props) {
 }
 
 const styles: Record<string, React.CSSProperties> = {
+  installBanner: { background: '#fff3cd', border: '1px solid #ffc107', borderRadius: 10, margin: '12px 16px 0', padding: '12px 16px', fontSize: 14, lineHeight: 1.6 },
+  installBtn: { background: 'rgba(255,255,255,.2)', border: '1px solid rgba(255,255,255,.4)', color: '#fff', padding: '6px 10px', borderRadius: 8, cursor: 'pointer', fontSize: 14 },
   page: { minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#f5f5f5' },
   header: { background: '#E31837', color: '#fff', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
   logo: { fontWeight: 700, fontSize: 18 },

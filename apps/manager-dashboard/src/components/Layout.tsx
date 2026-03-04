@@ -5,6 +5,7 @@ const navItems = [
   { to: '/employees', label: '👥 עובדים' },
   { to: '/branches', label: '🏢 סניפים' },
   { to: '/shifts', label: '🕐 משמרות' },
+  { to: '/monthly', label: '📅 חודשי' },
   { to: '/reports', label: '📋 דוחות' },
 ]
 

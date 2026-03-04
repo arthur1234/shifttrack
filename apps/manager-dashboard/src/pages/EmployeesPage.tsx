@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
 
 export default function EmployeesPage() {
+  const navigate = useNavigate()
   const [employees, setEmployees] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -100,7 +102,12 @@ export default function EmployeesPage() {
             <tbody>
               {employees.map((emp: any) => (
                 <tr key={emp.id} style={{ borderBottom: '1px solid #f5f5f5' }}>
-                  <td style={{ padding: '10px 12px', fontWeight: 600 }}>{emp.fullName}</td>
+                  <td style={{ padding: '10px 12px', fontWeight: 600 }}>
+                    <button onClick={() => navigate(`/employees/${emp.id}`)}
+                      style={{ background: 'none', border: 'none', color: '#E31837', cursor: 'pointer', fontWeight: 700, fontSize: 14, padding: 0 }}>
+                      {emp.fullName}
+                    </button>
+                  </td>
                   <td style={{ padding: '10px 12px', direction: 'ltr', color: '#555' }}>{emp.phone}</td>
                   <td style={{ padding: '10px 12px' }}>{roleLabel[emp.role] || emp.role}</td>
                   <td style={{ padding: '10px 12px', color: '#555' }}>{emp.homeBranch?.name ?? '—'}</td>
