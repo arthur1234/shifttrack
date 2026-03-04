@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { QRCodeCanvas } from 'qrcode.react'
 import api from '../services/api'
 
 const FIELD_DEFS = [
@@ -13,6 +14,94 @@ const FIELD_DEFS = [
 
 const EMPTY = { name: '', shortCode: '', address: '', city: '', latitude: '', longitude: '', geofenceRadius: '150', isActive: true }
 
+// Get base URL for PWA (same origin, root)
+const getPwaUrl = (branch: any) => {
+  const base = window.location.origin
+  return `${base}/?branch=${encodeURIComponent(branch.shortCode || branch.id)}`
+}
+
+function QRModal({ branch, onClose }: { branch: any; onClose: () => void }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const url = getPwaUrl(branch)
+
+  const handleDownload = () => {
+    // Find the canvas rendered by QRCodeCanvas
+    const canvas = document.getElementById('branch-qr-canvas') as HTMLCanvasElement
+    if (!canvas) return
+    const link = document.createElement('a')
+    link.download = `qr-${branch.shortCode || branch.id}.png`
+    link.href = canvas.toDataURL('image/png')
+    link.click()
+  }
+
+  const handlePrint = () => {
+    const canvas = document.getElementById('branch-qr-canvas') as HTMLCanvasElement
+    if (!canvas) return
+    const dataUrl = canvas.toDataURL('image/png')
+    const w = window.open('', '_blank')
+    if (!w) return
+    w.document.write(`
+      <html><head><title>QR — ${branch.name}</title>
+      <style>
+        body { margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; font-family: Arial, sans-serif; direction: rtl; }
+        img { width: 300px; height: 300px; }
+        h2 { font-size: 24px; margin: 16px 0 4px; }
+        p { color: #555; font-size: 16px; margin: 0; }
+        .brand { color: #E31837; font-weight: bold; font-size: 20px; margin-bottom: 12px; }
+        @media print { button { display: none; } }
+      </style></head>
+      <body>
+        <div class="brand">🍕 Pizza Hut Israel — ShiftTrack</div>
+        <img src="${dataUrl}" alt="QR Code" />
+        <h2>${branch.name}</h2>
+        <p>${branch.city}${branch.address ? ' — ' + branch.address : ''}</p>
+        <p style="margin-top:8px;font-size:13px;color:#999">סרוק להתחברות למשמרת</p>
+        <button onclick="window.print()" style="margin-top:20px;padding:10px 24px;background:#E31837;color:#fff;border:none;border-radius:8px;font-size:16px;cursor:pointer;">🖨️ הדפס</button>
+      </body></html>
+    `)
+    w.document.close()
+  }
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
+    }} onClick={onClose}>
+      <div style={{
+        background: '#fff', borderRadius: 16, padding: 32, maxWidth: 380, width: '90%',
+        textAlign: 'center', boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
+      }} onClick={e => e.stopPropagation()}>
+        <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 4 }}>📱 QR — {branch.name}</h2>
+        <p style={{ color: '#666', fontSize: 14, marginBottom: 20 }}>{branch.city}{branch.address ? ` — ${branch.address}` : ''}</p>
+
+        <div style={{ display: 'inline-block', padding: 12, background: '#fff', border: '3px solid #E31837', borderRadius: 12 }}>
+          <QRCodeCanvas
+            id="branch-qr-canvas"
+            value={url}
+            size={220}
+            level="M"
+            imageSettings={{
+              src: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0OCA0OCI+PHRleHQgeT0iMzYiIGZvbnQtc2l6ZT0iMzYiPvCfjaU8L3RleHQ+PC9zdmc+',
+              height: 32,
+              width: 32,
+              excavate: true,
+            }}
+          />
+        </div>
+
+        <p style={{ marginTop: 16, fontSize: 12, color: '#999', wordBreak: 'break-all', direction: 'ltr' }}>{url}</p>
+        <p style={{ fontSize: 13, color: '#555', marginTop: 8 }}>עובדים סורקים QR בסניף להתחברות מהירה</p>
+
+        <div style={{ display: 'flex', gap: 10, marginTop: 20, justifyContent: 'center' }}>
+          <button className="btn btn-secondary" onClick={handleDownload}>⬇️ הורד PNG</button>
+          <button className="btn btn-primary" onClick={handlePrint}>🖨️ הדפס</button>
+          <button className="btn btn-secondary" onClick={onClose}>✕ סגור</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function BranchesPage() {
   const [branches, setBranches] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -23,6 +112,7 @@ export default function BranchesPage() {
   const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useState('')
   const [search, setSearch] = useState('')
+  const [qrBranch, setQrBranch] = useState<any>(null)
 
   const load = async () => {
     try {
@@ -108,6 +198,8 @@ export default function BranchesPage() {
 
   return (
     <div>
+      {qrBranch && <QRModal branch={qrBranch} onClose={() => setQrBranch(null)} />}
+
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <h1 style={{ fontSize: 22, fontWeight: 700 }}>🏢 סניפים ({branches.length})</h1>
         <button className="btn btn-primary" onClick={() => { setShowForm(!showForm); setMsg('') }}>
@@ -141,7 +233,7 @@ export default function BranchesPage() {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
             <thead>
               <tr style={{ borderBottom: '2px solid #eee' }}>
-                {['שם סניף', 'עיר', 'כתובת', 'קוד', 'עובדים', 'גיאופנס', 'סטטוס', 'עריכה'].map(h => (
+                {['שם סניף', 'עיר', 'כתובת', 'קוד', 'עובדים', 'גיאופנס', 'סטטוס', 'פעולות'].map(h => (
                   <th key={h} style={{ padding: '8px 10px', textAlign: 'right', color: '#666', fontWeight: 600 }}>{h}</th>
                 ))}
               </tr>
@@ -162,10 +254,17 @@ export default function BranchesPage() {
                       </span>
                     </td>
                     <td style={{ padding: '10px 10px' }}>
-                      <button className="btn btn-secondary btn-sm"
-                        onClick={() => editingBranch?.id === b.id ? setEditingBranch(null) : openEdit(b)}>
-                        {editingBranch?.id === b.id ? '✕' : '✏️ ערוך'}
-                      </button>
+                      <div style={{ display: 'flex', gap: 6 }}>
+                        <button className="btn btn-secondary btn-sm"
+                          onClick={() => editingBranch?.id === b.id ? setEditingBranch(null) : openEdit(b)}>
+                          {editingBranch?.id === b.id ? '✕' : '✏️'}
+                        </button>
+                        <button className="btn btn-secondary btn-sm"
+                          onClick={() => setQrBranch(b)}
+                          title="הצג QR Code">
+                          📱 QR
+                        </button>
+                      </div>
                     </td>
                   </tr>
                   {editingBranch?.id === b.id && (
