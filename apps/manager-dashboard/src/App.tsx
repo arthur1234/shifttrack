@@ -6,6 +6,7 @@ import DashboardPage from './pages/DashboardPage'
 import EmployeesPage from './pages/EmployeesPage'
 import BranchesPage from './pages/BranchesPage'
 import ShiftsPage from './pages/ShiftsPage'
+import ReportsPage from './pages/ReportsPage'
 
 export default function App() {
   const [token, setToken] = useState<string | null>(localStorage.getItem('mgr_token'))
@@ -29,6 +30,7 @@ export default function App() {
         <Route path="/employees" element={<EmployeesPage />} />
         <Route path="/branches" element={<BranchesPage />} />
         <Route path="/shifts" element={<ShiftsPage />} />
+        <Route path="/reports" element={<ReportsPage />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Layout>

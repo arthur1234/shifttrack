@@ -5,6 +5,7 @@ const navItems = [
   { to: '/employees', label: '👥 עובדים' },
   { to: '/branches', label: '🏢 סניפים' },
   { to: '/shifts', label: '🕐 משמרות' },
+  { to: '/reports', label: '📋 דוחות' },
 ]
 
 export default function Layout({ children, onLogout }: { children: React.ReactNode; onLogout: () => void }) {

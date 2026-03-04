@@ -8,6 +8,7 @@ import { ShiftsModule } from './modules/shifts/shifts.module';
 import { BranchesModule } from './modules/branches/branches.module';
 import { EmployeesModule } from './modules/employees/employees.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
+import { ReportsModule } from './modules/reports/reports.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
     BranchesModule,
     EmployeesModule,
     DashboardModule,
+    ReportsModule,
   ],
   controllers: [AppController],
 })
