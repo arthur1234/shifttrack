@@ -11,6 +11,9 @@ export default function EmployeesPage() {
   const [branches, setBranches] = useState<any[]>([])
   const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useState('')
+  const [importing, setImporting] = useState(false)
+  const [editingEmp, setEditingEmp] = useState<any>(null)
+  const [editForm, setEditForm] = useState({ fullName: '', phone: '', email: '', role: '', homeBranchId: '', isActive: true })
 
   const load = async () => {
     try {
@@ -36,6 +39,42 @@ export default function EmployeesPage() {
     } finally { setSaving(false) }
   }
 
+  const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setImporting(true); setMsg('')
+    const formData = new FormData()
+    formData.append('file', file)
+    try {
+      const token = localStorage.getItem('mgr_token')
+      const res = await fetch('/api/v1/employees/import/excel', {
+        method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: formData
+      })
+      const data = await res.json()
+      if (data.success) {
+        setMsg(`✅ יובאו ${data.data.imported} עובדים. ${data.data.skipped > 0 ? `דולגו ${data.data.skipped}.` : ''}`)
+        load()
+      } else setMsg('❌ שגיאה ביבוא')
+    } catch { setMsg('❌ שגיאה ביבוא') }
+    finally { setImporting(false); e.target.value = '' }
+  }
+
+  const openEdit = (emp: any) => {
+    setEditingEmp(emp)
+    setEditForm({ fullName: emp.fullName, phone: emp.phone, email: emp.email || '', role: emp.role, homeBranchId: emp.homeBranch?.id || '', isActive: emp.isActive })
+  }
+
+  const handleEdit = async (e: React.FormEvent) => {
+    e.preventDefault(); setSaving(true); setMsg('')
+    try {
+      await api.put(`/employees/${editingEmp.id}`, editForm)
+      setMsg('✅ עובד עודכן בהצלחה')
+      setEditingEmp(null)
+      load()
+    } catch (e: any) { setMsg('❌ ' + (e.response?.data?.error?.message || 'שגיאה')) }
+    finally { setSaving(false) }
+  }
+
   const roleLabel: Record<string, string> = {
     ADMIN: '👑 אדמין', BRANCH_MANAGER: '🏢 מנהל סניף',
     ACCOUNTING: '📊 הנהלת חשבונות', EMPLOYEE: '👤 עובד'
@@ -45,7 +84,18 @@ export default function EmployeesPage() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <h1 style={{ fontSize: 22, fontWeight: 700 }}>👥 עובדים</h1>
-        <button className="btn btn-primary" onClick={() => setShowForm(!showForm)}>+ הוסף עובד</button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <label className="btn btn-secondary" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+            {importing ? '⏳ מייבא...' : '📥 ייבוא Excel'}
+            <input type="file" accept=".xlsx,.xls" style={{ display: 'none' }} onChange={handleImportExcel} />
+          </label>
+          <button className="btn btn-primary" onClick={() => setShowForm(!showForm)}>+ הוסף עובד</button>
+        </div>
+      </div>
+
+      {/* Excel format hint */}
+      <div style={{ background: '#e3f2fd', borderRadius: 8, padding: '10px 14px', marginBottom: 16, fontSize: 13, color: '#1565c0' }}>
+        📋 <strong>פורמט Excel לייבוא:</strong> עמודה A = שם מלא, B = טלפון (0501234567 או +972...), C = אימייל, D = תפקיד (EMPLOYEE/BRANCH_MANAGER), E = קוד סניף
       </div>
 
       {msg && <div style={{ padding: '10px 16px', borderRadius: 8, background: msg.startsWith('✅') ? '#e8f5e9' : '#ffebee', color: msg.startsWith('✅') ? '#2e7d32' : '#c62828', marginBottom: 16 }}>{msg}</div>}
@@ -94,7 +144,7 @@ export default function EmployeesPage() {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
             <thead>
               <tr style={{ borderBottom: '1px solid #eee' }}>
-                {['שם', 'טלפון', 'תפקיד', 'סניף', 'סטטוס'].map(h => (
+                {['שם', 'טלפון', 'תפקיד', 'סניף', 'סטטוס', ''].map(h => (
                   <th key={h} style={{ padding: '8px 12px', textAlign: 'right', color: '#666', fontWeight: 600 }}>{h}</th>
                 ))}
               </tr>
@@ -116,12 +166,62 @@ export default function EmployeesPage() {
                       {emp.isActive ? 'פעיל' : 'לא פעיל'}
                     </span>
                   </td>
+                  <td style={{ padding: '10px 12px' }}>
+                    <button className="btn btn-secondary btn-sm" onClick={() => openEdit(emp)}>✏️ ערוך</button>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         )}
       </div>
+
+      {/* Edit employee modal */}
+      {editingEmp && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: '#fff', borderRadius: 16, padding: 28, width: 440, maxWidth: '95vw' }}>
+            <h3 style={{ fontWeight: 700, marginBottom: 20 }}>✏️ עריכת עובד: {editingEmp.fullName}</h3>
+            <form onSubmit={handleEdit}>
+              {[
+                { label: 'שם מלא', key: 'fullName', type: 'text' },
+                { label: 'טלפון', key: 'phone', type: 'tel', dir: 'ltr' },
+                { label: 'אימייל', key: 'email', type: 'email', dir: 'ltr' },
+              ].map(f => (
+                <div key={f.key} style={{ marginBottom: 14 }}>
+                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{f.label}</label>
+                  <input type={f.type} value={(editForm as any)[f.key]}
+                    onChange={e => setEditForm(p => ({ ...p, [f.key]: e.target.value }))}
+                    style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid #ddd', fontSize: 14, direction: (f as any).dir || 'rtl' }} />
+                </div>
+              ))}
+              <div style={{ marginBottom: 14 }}>
+                <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 4 }}>תפקיד</label>
+                <select value={editForm.role} onChange={e => setEditForm(p => ({ ...p, role: e.target.value }))}
+                  style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid #ddd', fontSize: 14 }}>
+                  {Object.entries(roleLabel).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                </select>
+              </div>
+              <div style={{ marginBottom: 14 }}>
+                <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 4 }}>סניף בית</label>
+                <select value={editForm.homeBranchId} onChange={e => setEditForm(p => ({ ...p, homeBranchId: e.target.value }))}
+                  style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid #ddd', fontSize: 14 }}>
+                  <option value="">— ללא סניף —</option>
+                  {branches.map((b: any) => <option key={b.id} value={b.id}>{b.name}</option>)}
+                </select>
+              </div>
+              <div style={{ marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <input type="checkbox" id="isActive" checked={editForm.isActive}
+                  onChange={e => setEditForm(p => ({ ...p, isActive: e.target.checked }))} />
+                <label htmlFor="isActive" style={{ fontSize: 14, fontWeight: 600 }}>עובד פעיל</label>
+              </div>
+              <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                <button type="button" className="btn btn-secondary" onClick={() => setEditingEmp(null)}>ביטול</button>
+                <button type="submit" className="btn btn-primary" disabled={saving}>{saving ? 'שומר...' : 'שמור שינויים'}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
