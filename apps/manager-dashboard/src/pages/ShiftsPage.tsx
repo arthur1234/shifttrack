@@ -34,7 +34,7 @@ export default function ShiftsPage() {
       <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 20 }}>🕐 היסטוריית משמרות</h1>
       <div className="card">
         {loading ? <p style={{ padding: 16, textAlign: 'center', color: '#666' }}>טוען...</p> : (
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+          <div className="table-scroll"><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
               <tr style={{ borderBottom: '1px solid #eee' }}>
                 {['עובד', 'סניף', 'התחלה', 'סיום', 'משך', 'סטטוס', 'הערות'].map(h => (
@@ -64,7 +64,7 @@ export default function ShiftsPage() {
                 <tr><td colSpan={7} style={{ padding: 24, textAlign: 'center', color: '#666' }}>אין משמרות עדיין</td></tr>
               )}
             </tbody>
-          </table>
+          </table></div>
         )}
       </div>
     </div>

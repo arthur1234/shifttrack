@@ -99,7 +99,7 @@ export default function ReportsPage() {
 
           <div className="card">
             <h3 style={{ fontWeight: 700, marginBottom: 16 }}>פירוט לפי עובד</h3>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+            <div className="table-scroll"><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid #eee' }}>
                   {['עובד', 'טלפון', 'משמרות', 'שעות סה"כ'].map(h => (
@@ -117,7 +117,7 @@ export default function ReportsPage() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
           </div>
         </>
       )}

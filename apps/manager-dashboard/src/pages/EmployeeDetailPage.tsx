@@ -128,7 +128,7 @@ export default function EmployeeDetailPage() {
       <div className="card">
         <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>🕐 היסטוריית משמרות</h2>
         {msg && <div style={{ padding: '8px 14px', borderRadius: 8, background: msg.startsWith('✅') ? '#e8f5e9' : '#ffebee', color: msg.startsWith('✅') ? '#2e7d32' : '#c62828', marginBottom: 12, fontSize: 13 }}>{msg}</div>}
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+        <div className="table-scroll"><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
           <thead>
             <tr style={{ borderBottom: '1px solid #eee' }}>
               {['כניסה', 'יציאה', 'משך', 'סניף', 'מיקום', 'סטטוס', 'עריכה'].map(h => (
@@ -195,7 +195,7 @@ export default function EmployeeDetailPage() {
               <tr><td colSpan={7} style={{ padding: 24, textAlign: 'center', color: '#999' }}>אין היסטוריית משמרות</td></tr>
             )}
           </tbody>
-        </table>
+        </table></div>
       </div>
     </div>
   )

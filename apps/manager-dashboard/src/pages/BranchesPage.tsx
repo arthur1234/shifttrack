@@ -230,7 +230,7 @@ export default function BranchesPage() {
         {loading ? (
           <p style={{ padding: 16, textAlign: 'center', color: '#666' }}>טוען...</p>
         ) : (
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+          <div className="table-scroll"><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
             <thead>
               <tr style={{ borderBottom: '2px solid #eee' }}>
                 {['שם סניף', 'עיר', 'כתובת', 'קוד', 'עובדים', 'גיאופנס', 'סטטוס', 'פעולות'].map(h => (
@@ -287,7 +287,7 @@ export default function BranchesPage() {
                 <tr><td colSpan={8} style={{ padding: 24, textAlign: 'center', color: '#999' }}>לא נמצאו סניפים</td></tr>
               )}
             </tbody>
-          </table>
+          </table></div>
         )}
       </div>
     </div>

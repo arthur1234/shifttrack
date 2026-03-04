@@ -141,7 +141,7 @@ export default function EmployeesPage() {
 
       <div className="card">
         {loading ? <p style={{ padding: 16, textAlign: 'center', color: '#666' }}>טוען...</p> : (
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+          <div className="table-scroll"><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
             <thead>
               <tr style={{ borderBottom: '1px solid #eee' }}>
                 {['שם', 'טלפון', 'משרה', 'תפקיד', 'סניף', 'סטטוס', ''].map(h => (
@@ -173,7 +173,7 @@ export default function EmployeesPage() {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         )}
       </div>
 

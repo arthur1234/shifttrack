@@ -59,14 +59,14 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <h1 style={{ fontSize: 22, fontWeight: 700 }}>לוח בקרה</h1>
         <button className="btn btn-secondary btn-sm" onClick={load}>🔄 רענן</button>
       </div>
 
       {/* Summary cards */}
       {summary && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 20 }}>
+        <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 20 }}>
           {[
             { val: summary.activeCount, label: 'עובדים עכשיו', color: '#E31837' },
             { val: summary.completedToday, label: 'סיימו היום', color: '#2e7d32' },
@@ -105,7 +105,7 @@ export default function DashboardPage() {
           {status?.working?.length === 0 ? (
             <p style={{ padding: 16, textAlign: 'center', color: '#666' }}>אין עובדים במשמרת כעת</p>
           ) : (
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+            <div className="table-scroll"><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
               <thead><tr style={{ borderBottom: '1px solid #eee' }}>
                 {['עובד', 'סניף', 'מיקום', 'שעת כניסה', 'משך', ''].map(h => (
                   <th key={h} style={{ padding: '8px 12px', textAlign: 'right', color: '#666', fontWeight: 600 }}>{h}</th>
@@ -125,7 +125,7 @@ export default function DashboardPage() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
           )}
         </div>
       )}
@@ -136,7 +136,7 @@ export default function DashboardPage() {
           {status?.notStarted?.length === 0 ? (
             <p style={{ padding: 16, textAlign: 'center', color: '#666' }}>כולם כבר עבדו היום 🎉</p>
           ) : (
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+            <div className="table-scroll"><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
               <thead><tr style={{ borderBottom: '1px solid #eee' }}>
                 {['עובד', 'טלפון', 'סניף בית', 'סוג'].map(h => (
                   <th key={h} style={{ padding: '8px 12px', textAlign: 'right', color: '#666', fontWeight: 600 }}>{h}</th>
@@ -156,7 +156,7 @@ export default function DashboardPage() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
           )}
         </div>
       )}
@@ -169,7 +169,7 @@ export default function DashboardPage() {
           ) : (
             <>
               <p style={{ color: '#c62828', marginBottom: 12, fontSize: 13 }}>⚠️ משמרות אלה פתוחות מעל 12 שעות ודורשות סגירה ידנית</p>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+              <div className="table-scroll"><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
                 <thead><tr style={{ borderBottom: '1px solid #eee' }}>
                   {['עובד', 'סניף', 'נפתח', 'זמן פתוח', 'פעולה'].map(h => (
                     <th key={h} style={{ padding: '8px 12px', textAlign: 'right', color: '#666', fontWeight: 600 }}>{h}</th>
@@ -214,7 +214,7 @@ export default function DashboardPage() {
                     </>
                   ))}
                 </tbody>
-              </table>
+              </table></div>
             </>
           )}
         </div>

@@ -87,7 +87,7 @@ export default function MonthlyReportPage() {
 
           <div className="card">
             <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>פירוט לפי עובד</h2>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+            <div className="table-scroll"><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
               <thead>
                 <tr style={{ borderBottom: '2px solid #eee' }}>
                   {['#', 'עובד', 'טלפון', 'משמרות', 'שעות סה"כ', '🏢 סניף', '🏠 בית', '🚗 שדה', '❓ לא ידוע'].map(h => (
@@ -113,7 +113,7 @@ export default function MonthlyReportPage() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
           </div>
         </>
       )}
