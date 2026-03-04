@@ -22,6 +22,8 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       const res = exception.getResponse() as any;
       code = res.code || 'HTTP_ERROR';
       message = res.message || exception.message;
+    } else {
+      console.error('[GlobalExceptionFilter] Unhandled exception:', exception);
     }
 
     response.status(status).json({
