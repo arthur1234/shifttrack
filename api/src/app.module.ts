@@ -5,6 +5,9 @@ import { AppController } from './app.controller';
 import { PrismaModule } from './modules/prisma/prisma.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ShiftsModule } from './modules/shifts/shifts.module';
+import { BranchesModule } from './modules/branches/branches.module';
+import { EmployeesModule } from './modules/employees/employees.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -13,6 +16,9 @@ import { ShiftsModule } from './modules/shifts/shifts.module';
     PrismaModule,
     AuthModule,
     ShiftsModule,
+    BranchesModule,
+    EmployeesModule,
+    DashboardModule,
   ],
   controllers: [AppController],
 })
